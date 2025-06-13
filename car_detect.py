@@ -4,7 +4,9 @@ import cv2 as cv
 focal_length=868.2131
 orig_size=24
 
+
 model = YOLO('./models/yolo8m.pt')
+
 
 
 
