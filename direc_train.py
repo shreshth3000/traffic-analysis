@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Directories
-data_dir = './images_car'
+data_dir = './images_car/train'
 
 # Transformations
 transform = transforms.Compose([
