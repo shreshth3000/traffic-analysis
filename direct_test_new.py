@@ -54,7 +54,7 @@ class ImprovedDirectionCNN(nn.Module):
 model = ImprovedDirectionCNN().to(device)
 
 # Load trained weights
-model.load_state_dict(torch.load("./models/direction_classifier_new.pth", map_location=device))
+model.load_state_dict(torch.load("./models/direction_classifier_new_V1.pth", map_location=device))
 model.eval()
 
 # Define transform (must match training)
