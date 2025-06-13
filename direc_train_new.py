@@ -15,11 +15,15 @@ data_dir = './images_car/train'
 # Data transformations with augmentation
 transform = transforms.Compose([
     transforms.Resize((128, 128)),
-    transforms.RandomHorizontalFlip(),
-    transforms.ColorJitter(brightness=0.2, contrast=0.2),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomRotation(degrees=15),
+    transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),
+    transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3),
+    transforms.RandomPerspective(distortion_scale=0.2, p=0.5),
     transforms.ToTensor(),
-    transforms.Normalize([0.5] * 3, [0.5] * 3)  # For 3 channels
+    transforms.Normalize([0.5] * 3, [0.5] * 3)
 ])
+
 
 # Dataset and DataLoader
 dataset = datasets.ImageFolder(root=data_dir, transform=transform)
