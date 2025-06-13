@@ -52,7 +52,7 @@ class ImprovedDirectionCNN(nn.Module):
 
 # Load model
 model = ImprovedDirectionCNN().to(device)
-model.load_state_dict(torch.load("./models/direction_classifier_validation.pth", map_location=device))
+model.load_state_dict(torch.load("./models/direction_classifier_validation_V1.pth", map_location=device))
 model.eval()
 
 # Define transform
