@@ -38,7 +38,7 @@ class DirectionCNN(nn.Module):
 model = DirectionCNN().to(device)
 
 # Load trained weights
-model.load_state_dict(torch.load("./models/direction_classifier_V1.pth", map_location=device))
+model.load_state_dict(torch.load("./models/direction_classifier_V2.pth", map_location=device))
 model.eval()
 
 # Define transform (must match training)
