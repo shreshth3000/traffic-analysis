@@ -14,6 +14,7 @@ direction_model_path = './models/direction_classifier_validation_V2.pth'
 
 # Device configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cpu")
 
 # Direction classifier model definition (from direc_test_updated.py)
 class ImprovedDirectionCNN(nn.Module):
@@ -79,6 +80,7 @@ rgb_frame = cv2.cvtColor(resize_frame, cv2.COLOR_BGR2RGB)
 
 # --- Vehicle Detection ---
 vehicle_results = vehicle_model(rgb_frame, device="cuda" if torch.cuda.is_available() else "cpu")
+# vehicle_results = vehicle_model(rgb_frame, device="cpu")
 scale_x = frame.shape[1] / 640
 scale_y = frame.shape[0] / 640
 
