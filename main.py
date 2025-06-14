@@ -7,7 +7,7 @@ from torchvision import transforms
 from PIL import Image
 
 # Path to the image and models
-image_path = './data/valid/images/test_mp4-13_jpg.rf.98cd77f75c4492f8f103aaf4ce2ca8f8.jpg' # Example image
+image_path = './data/valid/images/14_mp4-2_jpg.rf.2f13b98e9712d8b5bef0b7b419a376b2.jpg' # Example image
 vehicle_model_path = './models/yolo8m.pt'
 lane_model_path = './models/lane_seg_weights.pt'
 direction_model_path = './models/direction_classifier_validation_V2.pth'

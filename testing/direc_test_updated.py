@@ -4,10 +4,8 @@ import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
 
-# Device configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Define model architecture (must match training)
 class ImprovedDirectionCNN(nn.Module):
     def __init__(self):
         super(ImprovedDirectionCNN, self).__init__()
@@ -50,30 +48,31 @@ class ImprovedDirectionCNN(nn.Module):
         x = self.classifier(x)
         return x
 
-# Load model
 model = ImprovedDirectionCNN().to(device)
-model.load_state_dict(torch.load("./models/direction_classifier_validation_V1.pth", map_location=device))
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(script_dir, '../models/direction_classifier_validation_V1.pth')
+model_path = os.path.normpath(model_path)
+model.load_state_dict(torch.load(model_path, map_location=device))
 model.eval()
 
-# Define transform
 transform = transforms.Compose([
     transforms.Resize((128, 128)),
     transforms.ToTensor(),
     transforms.Normalize([0.5] * 3, [0.5] * 3)
 ])
 
-# Class mapping
 class_names = ['backward', 'forward']
 class_to_idx = {'backward': 0, 'forward': 1}
 
-# Folder structure: ./images_car_unclassified/backward/, ./images_car_unclassified/forward/
-test_root = "./images_car/valid"
+test_root = os.path.join(script_dir, '../images_car/valid')
+test_root = os.path.normpath(test_root)
 
 total = 0
 correct = 0
 misclassified = []
 
-# Iterate through class folders
+
 for label in class_names:
     folder = os.path.join(test_root, label)
     if not os.path.exists(folder):
@@ -97,7 +96,6 @@ for label in class_names:
             else:
                 misclassified.append((img_file, label, predicted_label))
 
-# Results
 accuracy = 100 * correct / total if total > 0 else 0
 print(f"\nTest Accuracy: {accuracy:.2f}% ({correct}/{total})")
 

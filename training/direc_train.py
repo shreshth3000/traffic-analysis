@@ -6,13 +6,10 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-# Device config
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Directories
-data_dir = './images_car/train'
+data_dir = '../images_car/train'
 
-# Transformations
 transform = transforms.Compose([
     transforms.Resize((128, 128)),
     transforms.RandomHorizontalFlip(p=0.5),
@@ -24,11 +21,9 @@ transform = transforms.Compose([
 ])
 
 
-# Dataset and DataLoader
 dataset = datasets.ImageFolder(root=data_dir, transform=transform)
 dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
-# CNN Model
 class DirectionCNN(nn.Module):
     def __init__(self):
         super(DirectionCNN, self).__init__()
@@ -57,11 +52,9 @@ class DirectionCNN(nn.Module):
 
 model = DirectionCNN().to(device)
 
-# Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Training loop
 num_epochs = 20
 for epoch in range(num_epochs):
     running_loss = 0.0
@@ -85,5 +78,4 @@ for epoch in range(num_epochs):
     
     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss:.4f}, Accuracy: {100 * correct / total:.2f}%")
 
-# Save model
 torch.save(model.state_dict(), "direction_classifier.pth")
