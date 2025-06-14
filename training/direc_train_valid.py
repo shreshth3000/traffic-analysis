@@ -8,7 +8,9 @@ from torch.utils.data import DataLoader, random_split
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-data_dir = '../images_car/train'
+script_dir = os.path.dirname(os.path.abspath(__file__))
+data_dir = os.path.join(script_dir, '../images_car/train')
+data_dir = os.path.normpath(data_dir)
 
 train_transform = transforms.Compose([
     transforms.Resize((128, 128)),
