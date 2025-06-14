@@ -2,7 +2,9 @@ import numpy as np
 from ultralytics import YOLO
 import cv2 as cv
 
+
 model = YOLO('./models/lane_seg_weights.pt')  
+
 
 vid = cv.VideoCapture("vid.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
