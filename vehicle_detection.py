@@ -7,7 +7,7 @@ from torchvision import transforms
 from PIL import Image
 
 # Path to the image and models
-image_path = './data/valid/images/5_mp4-27_jpg.rf.30a8975089fb66bc245019de9d868801.jpg' # Example image
+image_path = './data/valid/images/test_mp4-13_jpg.rf.98cd77f75c4492f8f103aaf4ce2ca8f8.jpg' # Example image
 vehicle_model_path = './models/yolo8m.pt'
 lane_model_path = './models/lane_seg_weights.pt'
 direction_model_path = './models/direction_classifier_validation_V2.pth'
@@ -101,9 +101,9 @@ for result in vehicle_results:
                     output = direction_model(input_tensor)
                     _, predicted = torch.max(output, 1)
                     label = class_names[predicted.item()]
-                # Draw bounding box and label
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+                # Draw bounding box with color based on label
+                color = (0, 255, 0) if label == 'forward' else (0, 0, 255)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
             else:
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
@@ -121,6 +121,14 @@ for result in lane_results:
             frame = np.where(colored_mask > 0,
                              cv2.addWeighted(frame, 0.5, colored_mask, 0.5, 0),
                              frame)
+
+cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
+
+# Add legend for color coding (top right corner, modern look)
+legend_x = frame.shape[1] - 220
+legend_y = 30
+cv2.putText(frame, 'Forward', (legend_x, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+cv2.putText(frame, 'Backward', (legend_x + 110, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 cv2.waitKey(0)
