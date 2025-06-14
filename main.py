@@ -7,7 +7,7 @@ from torchvision import transforms
 from PIL import Image
 
 # Path to the image and models
-image_path = './data/valid/images/10_mp4-9_jpg.rf.72a35ba2f76343afc7a101e720dbbb81.jpg' # Example image
+image_path = './data/valid/images/5_mp4-5_jpg.rf.47c7656c79a6cfa7dbabfcaaeef94dea.jpg' # Example image
 vehicle_model_path = './models/yolo8m.pt'
 lane_model_path = './models/lane_seg_weights.pt'
 direction_model_path = './models/direction_classifier_validation_V2.pth'
@@ -116,7 +116,7 @@ for result in lane_results:
             colored_mask = np.zeros_like(frame, dtype=np.uint8)
             colored_mask[mask_resized == 1] = color
             frame = np.where(colored_mask > 0,
-                             cv2.addWeighted(frame, 0.7, colored_mask, 0.3, 0),
+                             cv2.addWeighted(frame, 0.5, colored_mask, 0.6, 0),
                              frame)
             lane_masks.append(mask_resized)
             total_lane_mask |= mask_resized
@@ -162,7 +162,7 @@ for i in range(num_lanes):
     colored_mask = np.zeros_like(frame, dtype=np.uint8)
     colored_mask[lane_masks[i] == 1] = color
     frame = np.where(colored_mask > 0,
-                     cv2.addWeighted(frame, 0.7, colored_mask, 0.3, 0),
+                     cv2.addWeighted(frame, 0.5, colored_mask, 0.6, 0),
                      frame)
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
