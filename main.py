@@ -7,7 +7,7 @@ from torchvision import transforms
 from PIL import Image
 
 # Path to the image and models
-image_path = './data/valid/images/test_mp4-13_jpg.rf.98cd77f75c4492f8f103aaf4ce2ca8f8.jpg' # Example image
+image_path = './data/valid/images/10_mp4-9_jpg.rf.72a35ba2f76343afc7a101e720dbbb81.jpg' # Example image
 vehicle_model_path = './models/yolo8m.pt'
 lane_model_path = './models/lane_seg_weights.pt'
 direction_model_path = './models/direction_classifier_validation_V2.pth'
@@ -170,8 +170,21 @@ cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 # Legend
 legend_x = frame.shape[1] - 220
 legend_y = 30
-cv2.putText(frame, 'Forward', (legend_x, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-cv2.putText(frame, 'Backward', (legend_x + 110, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+# Remove transparent background for Forward/Backward legend
+cv2.putText(frame, 'Forward', (legend_x, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0, 70), 1)
+cv2.putText(frame, 'Backward', (legend_x + 100, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255, 70), 1)
+
+# Lane density color legend (no background, more transparent, larger text)
+lane_legend_x = 30
+lane_legend_y = 30
+cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 255, 0), cv2.FILLED)
+cv2.putText(frame, 'Low', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0, 70), 1)
+lane_legend_y += 30
+cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 255, 255), cv2.FILLED)
+cv2.putText(frame, 'Moderate', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 255, 70), 1)
+lane_legend_y += 30
+cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 0, 255), cv2.FILLED)
+cv2.putText(frame, 'High', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255, 70), 1)
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 cv2.waitKey(0)
