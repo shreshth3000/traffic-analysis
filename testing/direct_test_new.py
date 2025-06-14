@@ -4,10 +4,8 @@ import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
 
-# Device configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Define the Improved CNN (must match training architecture!)
 class ImprovedDirectionCNN(nn.Module):
     def __init__(self):
         super(ImprovedDirectionCNN, self).__init__()
@@ -50,25 +48,21 @@ class ImprovedDirectionCNN(nn.Module):
         x = self.classifier(x)
         return x
 
-# Instantiate model
+
 model = ImprovedDirectionCNN().to(device)
 
-# Load trained weights
-model.load_state_dict(torch.load("./models/direction_validation.pth", map_location=device))
+model.load_state_dict(torch.load("../models/direction_validation.pth", map_location=device))
 model.eval()
 
-# Define transform (must match training)
 transform = transforms.Compose([
     transforms.Resize((128, 128)),
     transforms.ToTensor(),
     transforms.Normalize([0.5] * 3, [0.5] * 3)  # 3 channels
 ])
 
-# Class labels (must match order used during training)
 class_names = ['backward', 'forward']
 
-# Folder containing test images
-test_folder = "./images_car_unclassified"
+test_folder = "../images_car_unclassified"
 
 # Prediction loop
 for img_file in sorted(os.listdir(test_folder)):

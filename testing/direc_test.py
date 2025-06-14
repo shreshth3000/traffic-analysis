@@ -4,10 +4,10 @@ import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
 
-# Device configuration
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Define the CNN model (must match training!)
+
 class DirectionCNN(nn.Module):
     def __init__(self):
         super(DirectionCNN, self).__init__()
@@ -34,27 +34,22 @@ class DirectionCNN(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-# Instantiate model
 model = DirectionCNN().to(device)
 
-# Load trained weights
 model.load_state_dict(torch.load("./models/direction_classifier_V4.pth", map_location=device))
 model.eval()
 
-# Define transform (must match training)
 transform = transforms.Compose([
     transforms.Resize((128, 128)),
     transforms.ToTensor(),
     transforms.Normalize([0.5], [0.5])
 ])
 
-# Class labels
-class_names = ['backward', 'forward']  # Must match order used in training
+class_names = ['backward', 'forward']  
 
-# Folder containing unlabeled test images
-test_folder = "./images_car_unclassified"
+test_folder = "../images_car_unclassified"
 
-# Prediction loop
+
 for img_file in sorted(os.listdir(test_folder)):
     if img_file.lower().endswith(('.png', '.jpg', '.jpeg')):
         img_path = os.path.join(test_folder, img_file)
