@@ -5,12 +5,13 @@ focal_length=868.2131
 orig_size=24
 
 
+
 model = YOLO('./models/yolo8m.pt')
 
 
 
 
-vid=cv.VideoCapture("vid.mp4")
+vid=cv.VideoCapture("demo/vid.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH,1920)
 vid.set(cv.CAP_PROP_FRAME_HEIGHT,1080)
 vid.set(cv.CAP_PROP_FPS,60)
