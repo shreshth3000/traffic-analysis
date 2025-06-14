@@ -112,12 +112,6 @@ for result in lane_results:
         for mask in masks.data:
             mask_np = mask.cpu().numpy().astype('uint8')
             mask_resized = cv2.resize(mask_np, (frame.shape[1], frame.shape[0]))
-            color = (0, 255, 0)
-            colored_mask = np.zeros_like(frame, dtype=np.uint8)
-            colored_mask[mask_resized == 1] = color
-            frame = np.where(colored_mask > 0,
-                             cv2.addWeighted(frame, 0.5, colored_mask, 0.6, 0),
-                             frame)
             lane_masks.append(mask_resized)
             total_lane_mask |= mask_resized
 
@@ -164,6 +158,16 @@ for i in range(num_lanes):
     frame = np.where(colored_mask > 0,
                      cv2.addWeighted(frame, 0.5, colored_mask, 0.6, 0),
                      frame)
+    
+    # Add lane labeling
+    contours, _ = cv2.findContours(lane_mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        largest_contour = max(contours, key=cv2.contourArea)
+        x, y, w, h = cv2.boundingRect(largest_contour)
+        cx = x + w // 2
+        cy = y + h // 2
+        cv2.putText(frame, f"Lane {i+1}: {status}", (cx - 50, cy),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 
