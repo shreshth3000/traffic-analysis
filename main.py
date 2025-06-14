@@ -165,8 +165,9 @@ for i in range(num_lanes):
         x, y, w, h = cv2.boundingRect(largest_contour)
         cx = x + w // 2
         cy = y + h // 2
-        cv2.putText(frame, f"Lane {i+1}: {status}", (cx - 50, cy),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.3, color, 2)
+        # Draw a colored circle for lane density status with a black border
+        cv2.circle(frame, (cx, cy), 20, (0, 0, 0), -1)  # Black border
+        cv2.circle(frame, (cx, cy), 18, color, -1)       # Colored circle
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 
