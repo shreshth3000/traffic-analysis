@@ -104,6 +104,8 @@ for result in vehicle_results:
 
 # Lane Segmentation
 lane_results = lane_model(rgb_frame, device="cuda" if torch.cuda.is_available() else "cpu")
+lane_masks = []
+total_lane_mask = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.uint8)
 for result in lane_results:
     masks = result.masks
     if masks is not None:
@@ -116,6 +118,55 @@ for result in lane_results:
             frame = np.where(colored_mask > 0,
                              cv2.addWeighted(frame, 0.5, colored_mask, 0.5, 0),
                              frame)
+            lane_masks.append(mask_resized)
+            total_lane_mask |= mask_resized
+
+# Collect vehicle boxes (from detection loop above)
+vehicle_boxes = []
+for result in vehicle_results:
+    for box in result.boxes:
+        if hasattr(box, 'cls') and (box.cls in desired_obj or not desired_obj):
+            x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+            x1 = int(x1 * scale_x)
+            y1 = int(y1 * scale_y)
+            x2 = int(x2 * scale_x)
+            y2 = int(y2 * scale_y)
+            vehicle_boxes.append((x1, y1, x2, y2))
+
+num_lanes = len(lane_masks)
+assumed_lane_area = total_lane_mask.sum() / num_lanes if num_lanes > 0 else 1
+lane_vehicle_areas = [0] * num_lanes
+
+for x1, y1, x2, y2 in vehicle_boxes:
+    box_mask = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.uint8)
+    box_mask[y1:y2, x1:x2] = 1
+    overlaps = [np.logical_and(box_mask, lane_mask).sum() for lane_mask in lane_masks]
+    if overlaps:
+        lane_idx = int(np.argmax(overlaps))
+        box_area = (x2 - x1) * (y2 - y1)
+        lane_vehicle_areas[lane_idx] += box_area
+
+for i in range(num_lanes):
+    density_ratio = lane_vehicle_areas[i] / assumed_lane_area
+    if density_ratio > 0.4:
+        status = "High"
+        color = (0, 0, 255)
+    elif density_ratio > 0.1:
+        status = "Moderate"
+        color = (0, 255, 255)
+    else:
+        status = "Low"
+        color = (0, 255, 0)
+
+    lane_mask_uint8 = (lane_masks[i] * 255).astype('uint8')
+    contours, _ = cv2.findContours(lane_mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        largest_contour = max(contours, key=cv2.contourArea)
+        x, y, w, h = cv2.boundingRect(largest_contour)
+        cx = x + w // 2
+        cy = y + h // 2
+        cv2.putText(frame, f"Lane {i+1}: {status}", (cx - 50, cy),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.3, color, 2)
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 
