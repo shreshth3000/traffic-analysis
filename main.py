@@ -116,7 +116,7 @@ for result in lane_results:
             colored_mask = np.zeros_like(frame, dtype=np.uint8)
             colored_mask[mask_resized == 1] = color
             frame = np.where(colored_mask > 0,
-                             cv2.addWeighted(frame, 0.5, colored_mask, 0.5, 0),
+                             cv2.addWeighted(frame, 0.7, colored_mask, 0.3, 0),
                              frame)
             lane_masks.append(mask_resized)
             total_lane_mask |= mask_resized
@@ -150,24 +150,20 @@ for i in range(num_lanes):
     density_ratio = lane_vehicle_areas[i] / assumed_lane_area
     if density_ratio > 0.4:
         status = "High"
-        color = (0, 0, 255)
+        color = (0, 0, 255)      # Red
     elif density_ratio > 0.1:
         status = "Moderate"
-        color = (0, 255, 255)
+        color = (0, 255, 255)    # Yellow
     else:
         status = "Low"
-        color = (0, 255, 0)
+        color = (0, 255, 0)      # Green
 
     lane_mask_uint8 = (lane_masks[i] * 255).astype('uint8')
-    contours, _ = cv2.findContours(lane_mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if contours:
-        largest_contour = max(contours, key=cv2.contourArea)
-        x, y, w, h = cv2.boundingRect(largest_contour)
-        cx = x + w // 2
-        cy = y + h // 2
-        # Draw a colored circle for lane density status with a black border
-        cv2.circle(frame, (cx, cy), 20, (0, 0, 0), -1)  # Black border
-        cv2.circle(frame, (cx, cy), 18, color, -1)       # Colored circle
+    colored_mask = np.zeros_like(frame, dtype=np.uint8)
+    colored_mask[lane_masks[i] == 1] = color
+    frame = np.where(colored_mask > 0,
+                     cv2.addWeighted(frame, 0.7, colored_mask, 0.3, 0),
+                     frame)
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 
