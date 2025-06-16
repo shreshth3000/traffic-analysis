@@ -3,61 +3,25 @@ import numpy as np
 from ultralytics import YOLO
 import torch
 import torch.nn as nn
-from torchvision import transforms
+from torchvision import transforms, models
 from PIL import Image
 
 # Path to the image and models
 image_path = './data/valid/images/8_mp4-12_jpg.rf.dcbef9dfc2cf3b8eecf139c256caa179.jpg' # Example image
 vehicle_model_path = './models/yolo8m.pt'
 lane_model_path = './models/lane_seg_weights.pt'
-direction_model_path = './models/direction_classifier_validation_V2.pth'
+direction_model_path = './models/efficientnet_b2_direction_classifier.pth'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class ImprovedDirectionCNN(nn.Module):
-    def __init__(self):
-        super(ImprovedDirectionCNN, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-        )
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(128 * 16 * 16, 256),
-            nn.ReLU(),
-            nn.Dropout(0.5),
-            nn.Linear(256, 64),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(64, 2)
-        )
-    def forward(self, x):
-        x = self.features(x)
-        x = self.classifier(x)
-        return x
-
 vehicle_model = YOLO(vehicle_model_path).to(device)
 lane_model = YOLO(lane_model_path).to(device)
-direction_model = ImprovedDirectionCNN().to(device)
+# Load EfficientNet-B2 for direction classification
+direction_model = models.efficientnet_b2()
+num_features = direction_model.classifier[1].in_features
+direction_model.classifier[1] = nn.Linear(num_features, 2)
 direction_model.load_state_dict(torch.load(direction_model_path, map_location=device))
+direction_model = direction_model.to(device)
 direction_model.eval()
 
 transform = transforms.Compose([
