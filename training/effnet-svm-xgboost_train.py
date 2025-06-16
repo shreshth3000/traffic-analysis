@@ -13,7 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Paths
 script_dir = os.path.dirname(os.path.abspath(__file__))
-data_dir = os.path.normpath(os.path.join(script_dir, '../images_car/train'))
+data_dir = os.path.normpath(os.path.join(script_dir, '../images_car/valid'))
 
 # Transforms for feature extraction
 transform = transforms.Compose([

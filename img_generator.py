@@ -3,11 +3,11 @@ import os
 import pandas as pd
 
 # Load the CSV file
-df = pd.read_csv('./data/valid/labels/_annotations.csv')
-df = df.iloc[1::50]
+df = pd.read_csv('./data/train/labels/_annotations.csv')
+df = df.iloc[1000::51]
 
 # Directory containing the images
-image_dir = './data/valid/images'
+image_dir = './data/train/images'
 # Output directory for cropped images
 output_dir = 'images_car_unclassified'
 os.makedirs(output_dir, exist_ok=True)
