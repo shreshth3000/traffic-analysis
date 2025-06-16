@@ -51,7 +51,7 @@ class ImprovedDirectionCNN(nn.Module):
 model = ImprovedDirectionCNN().to(device)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(script_dir, '../models/direction_classifier_validation_V1.pth')
+model_path = os.path.join(script_dir, '../models/direction_classifier_validation_V2.pth')
 model_path = os.path.normpath(model_path)
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.eval()

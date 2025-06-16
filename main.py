@@ -54,8 +54,8 @@ class ImprovedDirectionCNN(nn.Module):
         x = self.classifier(x)
         return x
 
-vehicle_model = YOLO(vehicle_model_path)
-lane_model = YOLO(lane_model_path)
+vehicle_model = YOLO(vehicle_model_path).to(device)
+lane_model = YOLO(lane_model_path).to(device)
 direction_model = ImprovedDirectionCNN().to(device)
 direction_model.load_state_dict(torch.load(direction_model_path, map_location=device))
 direction_model.eval()
