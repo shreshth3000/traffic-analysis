@@ -13,10 +13,10 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 data_dir = os.path.join(script_dir, '../images_car/train')
 data_dir = os.path.normpath(data_dir)
 
-# Data augmentation (same as direc_train_valid.py)
+# Data augmentation
 train_transform = transforms.Compose([
     transforms.Resize((260, 260)),
-    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomHorizontalFlip(p=0.75),
     transforms.RandomRotation(degrees=15),
     transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),
     transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3),

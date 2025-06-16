@@ -1,7 +1,29 @@
 EffNet + SVM: Accuracy = 80.00%
-EffNet + XGBoost = 68.42%
+    test Accuracy: 81.08%
+    Precision: 0.8714
+    Recall: 0.7625
+    F1 Score: 0.8133
 
-EffNet with complete model trained: 91.89% (136/148)
-EffNet with only head trained: 77.03% (114/148)
+EffNet + XGBoost = 
+    Test Accuracy: 77.03%
+    Precision: 0.8286
+    Recall: 0.7250
+    F1 Score: 0.7733
 
-Scratch CNN: 78.38% (116/148)
+EffNet with complete model trained: 
+    Test Accuracy: 94.59%
+    Precision: 0.9286
+    Recall: 0.9750
+    F1 Score: 0.9512
+
+EffNet with only head trained: 
+    Test Accuracy: 80.41%
+    Precision: 0.8400
+    Recall: 0.7875
+    F1 Score: 0.8129
+
+Scratch CNN: 
+    Test Accuracy: 79.73%
+    Precision: 0.7976
+    Recall: 0.8375
+F   F1 Score: 0.8171
