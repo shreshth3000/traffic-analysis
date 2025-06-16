@@ -1,0 +1,5 @@
+EffNet + SVM: Accuracy = 73.68%
+EffNet + XGBoost = 68.42%
+
+EffNet with complete model trained: 89%
+EffNet with only head trained: 74%
