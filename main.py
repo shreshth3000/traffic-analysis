@@ -6,8 +6,10 @@ import torch.nn as nn
 from torchvision import transforms, models
 from PIL import Image
 
+
 # Path to the image and models
 image_path = './data/valid/images/7_mp4-16_jpg.rf.4adf9f6fc7b5f6571fd1ef429cd79026.jpg' # Example image
+
 vehicle_model_path = './models/yolo8m.pt'
 lane_model_path = './models/lane_seg_weights.pt'
 direction_model_path = './models/efficientnet_b2_direction_classifier_V2_best.pth'
@@ -36,7 +38,6 @@ frame = cv2.resize(image, (1220, 700))
 resize_frame = cv2.resize(frame, (640, 640))
 rgb_frame = cv2.cvtColor(resize_frame, cv2.COLOR_BGR2RGB)
 
-# Vehicle Detection
 vehicle_results = vehicle_model(rgb_frame, device="cuda" if torch.cuda.is_available() else "cpu")
 scale_x = frame.shape[1] / 640
 scale_y = frame.shape[0] / 640
@@ -66,7 +67,6 @@ for result in vehicle_results:
             else:
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-# Lane Segmentation
 lane_results = lane_model(rgb_frame, device="cuda" if torch.cuda.is_available() else "cpu")
 lane_masks = []
 total_lane_mask = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.uint8)
@@ -79,7 +79,6 @@ for result in lane_results:
             lane_masks.append(mask_resized)
             total_lane_mask |= mask_resized
 
-# Collect vehicle boxes (from detection loop above)
 vehicle_boxes = []
 for result in vehicle_results:
     for box in result.boxes:
@@ -90,7 +89,7 @@ for result in vehicle_results:
             x2 = int(x2 * scale_x)
             y2 = int(y2 * scale_y)
             vehicle_boxes.append((x1, y1, x2, y2))
-
+num_vehicles=len(vehicle_boxes)
 num_lanes = len(lane_masks)
 assumed_lane_area = total_lane_mask.sum() / num_lanes if num_lanes > 0 else 1
 lane_vehicle_areas = [0] * num_lanes
@@ -108,13 +107,13 @@ for i in range(num_lanes):
     density_ratio = lane_vehicle_areas[i] / assumed_lane_area
     if density_ratio > 0.4:
         status = "High"
-        color = (0, 0, 255)      # Red
+        color = (0, 0, 255)      
     elif density_ratio > 0.1:
         status = "Moderate"
-        color = (0, 255, 255)    # Yellow
+        color = (0, 255, 255)    
     else:
         status = "Low"
-        color = (0, 255, 0)      # Green
+        color = (0, 255, 0)      
 
     lane_mask_uint8 = (lane_masks[i] * 255).astype('uint8')
     colored_mask = np.zeros_like(frame, dtype=np.uint8)
@@ -123,7 +122,6 @@ for i in range(num_lanes):
                      cv2.addWeighted(frame, 0.5, colored_mask, 0.6, 0),
                      frame)
     
-    # Add lane labeling
     contours, _ = cv2.findContours(lane_mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         largest_contour = max(contours, key=cv2.contourArea)
@@ -132,15 +130,16 @@ for i in range(num_lanes):
         cy = y + h // 2
         cv2.putText(frame, f"Lane {i+1}: {status}", (cx - 50, cy),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        cv2.putText(frame, f"Vehicles: {num_vehicles}", (500,100),
+                    cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0),2)
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 
-# Legend
 legend_x = frame.shape[1] - 220
 legend_y = 30
-# Remove transparent background for Forward/Backward legend
 cv2.putText(frame, 'Forward', (legend_x, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0, 70), 1)
 cv2.putText(frame, 'Backward', (legend_x + 100, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255, 70), 1)
+
 
 # # Lane density color legend (no background, more transparent, larger text)
 # lane_legend_x = 30
@@ -153,6 +152,7 @@ cv2.putText(frame, 'Backward', (legend_x + 100, legend_y), cv2.FONT_HERSHEY_SIMP
 # lane_legend_y += 30
 # cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 0, 255), cv2.FILLED)
 # cv2.putText(frame, 'High', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255, 70), 1)
+
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 cv2.waitKey(0)

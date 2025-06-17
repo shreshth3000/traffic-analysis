@@ -3,10 +3,12 @@ from ultralytics import YOLO
 import cv2 as cv
 
 
+
 model = YOLO('./models/lane_seg_weights.pt')  
 
 
-vid = cv.VideoCapture("vid.mp4")
+
+vid = cv.VideoCapture("demo/vid.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
 vid.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
 vid.set(cv.CAP_PROP_FPS, 60)
