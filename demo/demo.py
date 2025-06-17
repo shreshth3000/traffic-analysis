@@ -162,6 +162,12 @@ while True:
             cv.putText(frame, f"Lane {i+1}: {status}", (cx - 50, cy),
                     cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
             cv.putText(frame,f"Vehicles: {len(vehicle_boxes)}",(100,100),cv.FONT_HERSHEY_SIMPLEX,0.8,(0,0,0),2)
+    legend_x = frame.shape[1] - 220
+    legend_y = 30
+    cv.putText(frame, 'Forward', (legend_x, legend_y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0, 70), 1)
+    cv.putText(frame, 'Backward', (legend_x + 100, legend_y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255, 70), 1)
+
+    
     cv.imshow("vid", frame)
     out.write(frame)
 
