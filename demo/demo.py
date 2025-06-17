@@ -31,7 +31,7 @@ class_names = ['backward', 'forward']
 
 
 
-vid = cv.VideoCapture("demo/traffic.mp4")
+vid = cv.VideoCapture("demo/vid.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
 vid.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
 vid.set(cv.CAP_PROP_FPS, 60)
@@ -97,10 +97,8 @@ while True:
                             label = class_names[predicted.item()]
                         color = (0, 255, 0) if label == 'forward' else (0, 0, 255)
                         cv.rectangle(frame, (x1, y1), (x2, y2), color, thickness=2)
-                        conf_score = float(box.conf[0])
-                        cv.putText(frame, f"{conf_score:.2f}", (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
                     else:
-                        cv.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness=3)
+                        cv.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness=2)
 
     lane_masks = []
     total_lane_mask = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.uint8)
@@ -164,8 +162,8 @@ while True:
             cv.putText(frame,f"Vehicles: {len(vehicle_boxes)}",(100,100),cv.FONT_HERSHEY_SIMPLEX,0.8,(0,0,0),2)
     legend_x = frame.shape[1] - 220
     legend_y = 30
-    cv.putText(frame, 'Forward', (legend_x, legend_y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0, 70), 1)
-    cv.putText(frame, 'Backward', (legend_x + 100, legend_y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255, 70), 1)
+    cv.putText(frame, 'Forward', (legend_x, legend_y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0, 70), 2)
+    cv.putText(frame, 'Backward', (legend_x + 100, legend_y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255, 70), 2)
 
     
     cv.imshow("vid", frame)
