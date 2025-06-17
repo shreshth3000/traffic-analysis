@@ -9,7 +9,7 @@ lane_model = YOLO('models/lane_seg_weights.pt')
 
 dev = "cuda" if torch.cuda.is_available() else "cpu"
 
-vid = cv.VideoCapture("demo/vid.mp4")
+vid = cv.VideoCapture("demo/traffic.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
 vid.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
 vid.set(cv.CAP_PROP_FPS, 60)
@@ -21,6 +21,19 @@ if not vid.isOpened():
 frame_w, frame_h = 1220, 700
 desired_obj = [0, 3]
 
+# Read the first frame for lane detection
+istrue, first_frame = vid.read()
+if not istrue:
+    print("Error: Could not read the first frame.")
+    exit()
+first_frame = cv.resize(first_frame, (frame_w, frame_h))
+resize_first_frame = cv.resize(first_frame, (640, 640))
+rgb_first_frame = cv.cvtColor(resize_first_frame, cv.COLOR_BGR2RGB)
+lane_results = lane_model(rgb_first_frame, device=dev)
+
+# Reset video to the beginning
+vid.set(cv.CAP_PROP_POS_FRAMES, 0)
+
 while True:
     istrue, frame = vid.read()
     if not istrue:
@@ -31,7 +44,6 @@ while True:
     rgb_frame = cv.cvtColor(resize_frame, cv.COLOR_BGR2RGB)
 
     car_results = car_model(rgb_frame, device=dev)
-    lane_results = lane_model(rgb_frame, device=dev)
 
     scale_x = frame.shape[1] / 640
     scale_y = frame.shape[0] / 640
@@ -105,7 +117,11 @@ while True:
             cv.putText(frame,f"Vehicles: {len(vehicle_boxes)}",(100,100),cv.FONT_HERSHEY_SIMPLEX,0.8,(0,0,0),2)
     cv.imshow("vid", frame)
 
+    # Break if 'd' is pressed or window is closed
     if cv.waitKey(10) & 0xFF == ord("d"):
+        break
+    # Check if window was closed
+    if cv.getWindowProperty("vid", cv.WND_PROP_VISIBLE) < 1:
         break
 
 vid.release()
