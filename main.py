@@ -3,60 +3,27 @@ import numpy as np
 from ultralytics import YOLO
 import torch
 import torch.nn as nn
-from torchvision import transforms
+from torchvision import transforms, models
 from PIL import Image
 
-image_path = './data/valid/images/8_mp4-12_jpg.rf.dcbef9dfc2cf3b8eecf139c256caa179.jpg' 
+
+# Path to the image and models
+image_path = './data/valid/images/7_mp4-16_jpg.rf.4adf9f6fc7b5f6571fd1ef429cd79026.jpg' # Example image
+
 vehicle_model_path = './models/yolo8m.pt'
 lane_model_path = './models/lane_seg_weights.pt'
-direction_model_path = './models/direction_classifier_validation_V2.pth'
+direction_model_path = './models/efficientnet_b2_direction_classifier_V2_best.pth'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class ImprovedDirectionCNN(nn.Module):
-    def __init__(self):
-        super(ImprovedDirectionCNN, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-        )
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(128 * 16 * 16, 256),
-            nn.ReLU(),
-            nn.Dropout(0.5),
-            nn.Linear(256, 64),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(64, 2)
-        )
-    def forward(self, x):
-        x = self.features(x)
-        x = self.classifier(x)
-        return x
-
-vehicle_model = YOLO(vehicle_model_path)
-lane_model = YOLO(lane_model_path)
-direction_model = ImprovedDirectionCNN().to(device)
+vehicle_model = YOLO(vehicle_model_path).to(device)
+lane_model = YOLO(lane_model_path).to(device)
+# Load EfficientNet-B2 for direction classification
+direction_model = models.efficientnet_b2()
+num_features = direction_model.classifier[1].in_features
+direction_model.classifier[1] = nn.Linear(num_features, 2)
 direction_model.load_state_dict(torch.load(direction_model_path, map_location=device))
+direction_model = direction_model.to(device)
 direction_model.eval()
 
 transform = transforms.Compose([
@@ -173,16 +140,19 @@ legend_y = 30
 cv2.putText(frame, 'Forward', (legend_x, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0, 70), 1)
 cv2.putText(frame, 'Backward', (legend_x + 100, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255, 70), 1)
 
-lane_legend_x = 30
-lane_legend_y = 30
-cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 255, 0), cv2.FILLED)
-cv2.putText(frame, 'Low', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0, 70), 1)
-lane_legend_y += 30
-cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 255, 255), cv2.FILLED)
-cv2.putText(frame, 'Moderate', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 255, 70), 1)
-lane_legend_y += 30
-cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 0, 255), cv2.FILLED)
-cv2.putText(frame, 'High', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255, 70), 1)
+
+# # Lane density color legend (no background, more transparent, larger text)
+# lane_legend_x = 30
+# lane_legend_y = 30
+# cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 255, 0), cv2.FILLED)
+# cv2.putText(frame, 'Low', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0, 70), 1)
+# lane_legend_y += 30
+# cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 255, 255), cv2.FILLED)
+# cv2.putText(frame, 'Moderate', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 255, 70), 1)
+# lane_legend_y += 30
+# cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 0, 255), cv2.FILLED)
+# cv2.putText(frame, 'High', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255, 70), 1)
+
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 cv2.waitKey(0)

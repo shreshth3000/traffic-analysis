@@ -4,7 +4,7 @@ import pandas as pd
 
 # Load the CSV file
 df = pd.read_csv('./data/train/labels/_annotations.csv')
-df = df.iloc[400::69]
+df = df.iloc[1000::53]
 
 # Directory containing the images
 image_dir = './data/train/images'
