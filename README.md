@@ -31,6 +31,17 @@ pip install ultralytics
 - Precision: 0.92
 - Recall: 0.90
 
+#### 3. Single Shot Detector -finetuned
+
+##### Dependencies:
+```
+pip install torch torchvision
+```
+##### Results:
+- mAP@0.50: 0
+- mAP@0.50-0.95: 0
+- Precision: 0
+- Recall: 0
 ## Below are the different approaches with instructions to run and results for lane detection.
 
 
