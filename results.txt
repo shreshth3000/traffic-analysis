@@ -17,10 +17,10 @@ EffNet with complete model trained:
     F1 Score: 0.9512
 
     RandomErasing: 
-        Test Accuracy: 90.54%
-        Precision: 0.9231
-        Recall: 0.9000
-        F1 Score: 0.9114
+        Test Accuracy: 92.57%
+        Precision: 0.9157
+        Recall: 0.9500
+        F1 Score: 0.9325
 
 EffNet with only head trained: 
     Test Accuracy: 81.76%

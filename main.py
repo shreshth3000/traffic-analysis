@@ -7,10 +7,10 @@ from torchvision import transforms, models
 from PIL import Image
 
 # Path to the image and models
-image_path = './data/valid/images/8_mp4-22_jpg.rf.cc0d05137c80f5ef9057177e101b4e13.jpg' # Example image
+image_path = './data/valid/images/7_mp4-16_jpg.rf.4adf9f6fc7b5f6571fd1ef429cd79026.jpg' # Example image
 vehicle_model_path = './models/yolo8m.pt'
 lane_model_path = './models/lane_seg_weights.pt'
-direction_model_path = './models/efficientnet_b2_direction_classifier_V2.pth'
+direction_model_path = './models/efficientnet_b2_direction_classifier_V2_best.pth'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
