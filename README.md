@@ -19,7 +19,7 @@ pip install ultralytics
 - Precision: 0.9004
 - Recall: 0.9391
 
-#### 2. YOLO 8 from scratch
+#### 2. YOLOv8 trained from scratch
 
 ##### Dependencies:
 ```
