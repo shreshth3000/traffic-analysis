@@ -92,8 +92,9 @@ while True:
                             _, predicted = torch.max(output, 1)
                             label = class_names[predicted.item()]
                         color = (0, 255, 0) if label == 'forward' else (0, 0, 255)
-                        cv.rectangle(frame, (x1, y1), (x2, y2), color, thickness=3)
-                        cv.putText(frame, label, (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+                        cv.rectangle(frame, (x1, y1), (x2, y2), color, thickness=2)
+                        conf_score = float(box.conf[0])
+                        cv.putText(frame, f"{conf_score:.2f}", (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
                     else:
                         cv.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness=3)
 
@@ -141,6 +142,13 @@ while True:
             color = (0, 255, 0)
 
         lane_mask_uint8 = (lane_masks[i] * 255).astype('uint8')
+        # Lane coloring based on density (like main.py)
+        colored_mask = np.zeros_like(frame, dtype=np.uint8)
+        colored_mask[lane_masks[i] == 1] = color
+        frame = np.where(colored_mask > 0,
+                         cv.addWeighted(frame, 0.5, colored_mask, 0.6, 0),
+                         frame)
+
         contours, _ = cv.findContours(lane_mask_uint8, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
         if contours:
             largest_contour = max(contours, key=cv.contourArea)
@@ -148,7 +156,7 @@ while True:
             cx = x + w // 2
             cy = y + h // 2
             cv.putText(frame, f"Lane {i+1}: {status}", (cx - 50, cy),
-                    cv.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
+                    cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
             cv.putText(frame,f"Vehicles: {len(vehicle_boxes)}",(100,100),cv.FONT_HERSHEY_SIMPLEX,0.8,(0,0,0),2)
     cv.imshow("vid", frame)
 
