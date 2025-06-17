@@ -7,7 +7,7 @@ import torch.nn as nn
 from torchvision import transforms, models
 from PIL import Image
 
-car_model = YOLO('models/yolo8m.pt')
+car_model = YOLO('models/yolo8nbest.pt')
 lane_model = YOLO('models/lane_seg_weights.pt')
 
 direction_model_path = 'models/efficientnet_b2_direction_classifier_V2_best.pth'
@@ -31,7 +31,7 @@ class_names = ['backward', 'forward']
 
 
 
-vid = cv.VideoCapture("demo/vid.mp4")
+vid = cv.VideoCapture("demo/traffic.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
 vid.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
 vid.set(cv.CAP_PROP_FPS, 60)
@@ -47,15 +47,15 @@ desired_obj = [0, 3]
 fourcc = cv.VideoWriter_fourcc(*'mp4v')
 out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h))
 
-# Read the first frame for lane detection
-istrue, first_frame = vid.read()
-if not istrue:
-    print("Error: Could not read the first frame.")
-    exit()
-first_frame = cv.resize(first_frame, (frame_w, frame_h))
-resize_first_frame = cv.resize(first_frame, (640, 640))
-rgb_first_frame = cv.cvtColor(resize_first_frame, cv.COLOR_BGR2RGB)
-lane_results = lane_model(rgb_first_frame, device=dev)
+# # Read the first frame for lane detection
+# istrue, first_frame = vid.read()
+# if not istrue:
+#     print("Error: Could not read the first frame.")
+#     exit()
+# first_frame = cv.resize(first_frame, (frame_w, frame_h))
+# resize_first_frame = cv.resize(first_frame, (640, 640))
+# rgb_first_frame = cv.cvtColor(resize_first_frame, cv.COLOR_BGR2RGB)
+# lane_results = lane_model(rgb_first_frame, device=dev)
 
 # Reset video to the beginning
 vid.set(cv.CAP_PROP_POS_FRAMES, 0)
@@ -70,6 +70,7 @@ while True:
     rgb_frame = cv.cvtColor(resize_frame, cv.COLOR_BGR2RGB)
 
     car_results = car_model(rgb_frame, device=dev)
+    lane_results = lane_model(rgb_frame, device=dev)
 
     scale_x = frame.shape[1] / 640
     scale_y = frame.shape[0] / 640
