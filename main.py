@@ -8,9 +8,9 @@ from PIL import Image
 
 
 # Path to the image and models
-image_path = './data/valid/images/7_mp4-16_jpg.rf.4adf9f6fc7b5f6571fd1ef429cd79026.jpg' # Example image
+image_path = './data/valid/images/test2_mp4-16_jpg.rf.585413166ce3fb74dc3e975edc009020.jpg' # Example image
 
-vehicle_model_path = './models/yolo8m.pt'
+vehicle_model_path = './models/yolo8nbest.pt'
 lane_model_path = './models/lane_seg_weights.pt'
 direction_model_path = './models/efficientnet_b2_direction_classifier_V2_best.pth'
 
@@ -157,3 +157,6 @@ cv2.putText(frame, 'Backward', (legend_x + 100, legend_y), cv2.FONT_HERSHEY_SIMP
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 cv2.waitKey(0)
 cv2.destroyAllWindows() 
+
+# Save the processed image
+cv2.imwrite('output.jpg', frame) 
