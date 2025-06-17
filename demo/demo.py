@@ -31,7 +31,7 @@ class_names = ['backward', 'forward']
 
 
 
-vid = cv.VideoCapture("demo/traffic.mp4")
+vid = cv.VideoCapture("demo/vid.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
 vid.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
 vid.set(cv.CAP_PROP_FPS, 60)
