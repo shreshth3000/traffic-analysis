@@ -3,11 +3,33 @@ import numpy as np
 import torch
 import cv2 as cv
 from ultralytics import YOLO
+import torch.nn as nn
+from torchvision import transforms, models
+from PIL import Image
 
 car_model = YOLO('models/yolo8m.pt')
 lane_model = YOLO('models/lane_seg_weights.pt')
 
+direction_model_path = 'models/efficientnet_b2_direction_classifier_V2_best.pth'
+
 dev = "cuda" if torch.cuda.is_available() else "cpu"
+# Load EfficientNet-B2 for direction classification
+# (same as in main.py)
+direction_model = models.efficientnet_b2()
+num_features = direction_model.classifier[1].in_features
+direction_model.classifier[1] = nn.Linear(num_features, 2)
+direction_model.load_state_dict(torch.load(direction_model_path, map_location=dev))
+direction_model = direction_model.to(dev)
+direction_model.eval()
+
+transform = transforms.Compose([
+    transforms.Resize((128, 128)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.5] * 3, [0.5] * 3)
+])
+class_names = ['backward', 'forward']
+
+
 
 vid = cv.VideoCapture("demo/traffic.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
@@ -60,7 +82,20 @@ while True:
                     x2 = int(x2 * scale_x)
                     y2 = int(y2 * scale_y)
                     vehicle_boxes.append((x1, y1, x2, y2))
-                    cv.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), thickness=3)
+                    # --- Direction classification integration ---
+                    crop = frame[max(y1,0):max(y2,0), max(x1,0):max(x2,0)]
+                    if crop.size != 0:
+                        crop_pil = Image.fromarray(cv.cvtColor(crop, cv.COLOR_BGR2RGB))
+                        input_tensor = transform(crop_pil).unsqueeze(0).to(dev)
+                        with torch.no_grad():
+                            output = direction_model(input_tensor)
+                            _, predicted = torch.max(output, 1)
+                            label = class_names[predicted.item()]
+                        color = (0, 255, 0) if label == 'forward' else (0, 0, 255)
+                        cv.rectangle(frame, (x1, y1), (x2, y2), color, thickness=3)
+                        cv.putText(frame, label, (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+                    else:
+                        cv.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness=3)
 
     lane_masks = []
     total_lane_mask = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.uint8)
