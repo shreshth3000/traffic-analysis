@@ -7,7 +7,7 @@ from torchvision import transforms, models
 from PIL import Image
 
 # Path to the image and models
-image_path = './data/valid/images/11_mp4-7_jpg.rf.c29830bf45870c97e8667ce13c0994a9.jpg' # Example image
+image_path = './data/valid/images/8_mp4-22_jpg.rf.cc0d05137c80f5ef9057177e101b4e13.jpg' # Example image
 vehicle_model_path = './models/yolo8m.pt'
 lane_model_path = './models/lane_seg_weights.pt'
 direction_model_path = './models/efficientnet_b2_direction_classifier_V2.pth'
@@ -142,17 +142,17 @@ legend_y = 30
 cv2.putText(frame, 'Forward', (legend_x, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0, 70), 1)
 cv2.putText(frame, 'Backward', (legend_x + 100, legend_y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255, 70), 1)
 
-# Lane density color legend (no background, more transparent, larger text)
-lane_legend_x = 30
-lane_legend_y = 30
-cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 255, 0), cv2.FILLED)
-cv2.putText(frame, 'Low', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0, 70), 1)
-lane_legend_y += 30
-cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 255, 255), cv2.FILLED)
-cv2.putText(frame, 'Moderate', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 255, 70), 1)
-lane_legend_y += 30
-cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 0, 255), cv2.FILLED)
-cv2.putText(frame, 'High', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255, 70), 1)
+# # Lane density color legend (no background, more transparent, larger text)
+# lane_legend_x = 30
+# lane_legend_y = 30
+# cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 255, 0), cv2.FILLED)
+# cv2.putText(frame, 'Low', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0, 70), 1)
+# lane_legend_y += 30
+# cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 255, 255), cv2.FILLED)
+# cv2.putText(frame, 'Moderate', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 255, 70), 1)
+# lane_legend_y += 30
+# cv2.rectangle(frame, (lane_legend_x, lane_legend_y), (lane_legend_x + 30, lane_legend_y + 20), (0, 0, 255), cv2.FILLED)
+# cv2.putText(frame, 'High', (lane_legend_x + 40, lane_legend_y + 16), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255, 70), 1)
 
 cv2.imshow("Detected Vehicles, Lanes, and Directions", frame)
 cv2.waitKey(0)

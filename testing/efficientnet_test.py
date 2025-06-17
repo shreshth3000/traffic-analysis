@@ -15,7 +15,7 @@ num_features = model.classifier[1].in_features
 model.classifier[1] = nn.Linear(num_features, 2)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(script_dir, '../models/efficientnet_b2_direction_head_only_V2.pth')
+model_path = os.path.join(script_dir, '../models/efficientnet_b2_direction_classifier_V7.pth')
 model_path = os.path.normpath(model_path)
 model.load_state_dict(torch.load(model_path, map_location=device))
 model = model.to(device)
