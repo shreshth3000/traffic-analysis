@@ -1,7 +1,33 @@
-# traffic-analysis
+# Traffic-analysis
 
-run the main.py file
+## DEMO:
+Run file [demo.py](https://github.com/shreshth3000/traffic-analysis/blob/main/demo/demo.py) to view video demonstration of model.
 
-**YOLO8m-mAP-50**: 0.80062
+## Below are the different approaches with instructions to run and results
 
-**YOLO8m-mAP-50-95**: 0.69267
+### Model:
+#### 1. YOLO 8 nano pretrained 
+- [Training File](https://github.com/shreshth3000/traffic-analysis/blob/main/yolotrained.ipynb)
+- [best.pt](https://github.com/shreshth3000/traffic-analysis/blob/main/models/yolo8nbest.pt)
+##### Dependencies:
+```
+pip install ultralytics
+```
+##### Results:
+- mAP@0.50: 0.9755
+- mAP@0.50-0.95: 0.7320
+- Precision: 0.9004
+- Recall: 0.9391
+
+#### 2. YOLO 8 from scratch
+
+##### Dependencies:
+```
+pip install ultralytics
+```
+##### Results:
+- mAP@0.50: 0.96
+- mAP@0.50-0.95: 0.73
+- Precision: 0.92
+- Recall: 0.90
+
