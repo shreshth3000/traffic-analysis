@@ -43,6 +43,10 @@ if not vid.isOpened():
 frame_w, frame_h = 1220, 700
 desired_obj = [0, 3]
 
+# VideoWriter to save output
+fourcc = cv.VideoWriter_fourcc(*'mp4v')
+out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h))
+
 # Read the first frame for lane detection
 istrue, first_frame = vid.read()
 if not istrue:
@@ -159,6 +163,7 @@ while True:
                     cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
             cv.putText(frame,f"Vehicles: {len(vehicle_boxes)}",(100,100),cv.FONT_HERSHEY_SIMPLEX,0.8,(0,0,0),2)
     cv.imshow("vid", frame)
+    out.write(frame)
 
     # Break if 'd' is pressed or window is closed
     if cv.waitKey(10) & 0xFF == ord("d"):
@@ -168,4 +173,5 @@ while True:
         break
 
 vid.release()
+out.release()
 cv.destroyAllWindows()
