@@ -1,7 +1,7 @@
 # Traffic-analysis
 
 ## DEMO:
-Run file [demo.py](https://github.com/shreshth3000/traffic-analysis/blob/main/demo/demo.py) to view video demonstration of model.
+Run file [demo.py](https://github.com/shreshth3000/traffic-analysis/blob/main/demo/demo.py) to view the video demonstration of the model.
 
 ## Below are the different approaches with instructions to run and results for object detection.
 
