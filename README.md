@@ -1,7 +1,7 @@
 # Traffic-analysis
 
 ## DEMO:
-Run file [demo.py](https://github.com/shreshth3000/traffic-analysis/blob/main/demo/demo.py) to view the video demonstration of the model.
+Run file [demo_improved.py](https://github.com/shreshth3000/traffic-analysis/blob/main/demo/demo_improved.py) to view the video demonstration of the model.
 
 ## Output format
 
