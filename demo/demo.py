@@ -119,8 +119,8 @@ frame_w, frame_h = 1220, 700
 desired_obj = [0, 3]
 
 # VideoWriter to save output
-# fourcc = cv.VideoWriter_fourcc(*'mp4v')
-# out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h))
+fourcc = cv.VideoWriter_fourcc(*'mp4v')
+out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h))
 
 # # Read the first frame for lane detection
 # istrue, first_frame = vid.read()
@@ -151,6 +151,7 @@ while True:
     scale_y = frame.shape[0] / 640
 
     vehicle_boxes = []
+    detected_boxes_with_labels = []
 
     if car_results:
         for result in car_results:
@@ -162,6 +163,22 @@ while True:
                     x2 = int(x2 * scale_x)
                     y2 = int(y2 * scale_y)
                     vehicle_boxes.append((x1, y1, x2, y2))
+                    # --- Direction classification integration (restored) ---
+                    crop = frame[max(y1,0):max(y2,0), max(x1,0):max(x2,0)]
+                    if crop.size != 0:
+                        crop_pil = Image.fromarray(cv.cvtColor(crop, cv.COLOR_BGR2RGB))
+                        input_tensor = transform(crop_pil).unsqueeze(0).to(dev)
+                        with torch.no_grad():
+                            output = direction_model(input_tensor)
+                            _, predicted = torch.max(output, 1)
+                            label = class_names[predicted.item()]
+                        color = (0, 255, 0) if label == 'forward' else (0, 0, 255)
+                        cv.rectangle(frame, (x1, y1), (x2, y2), color, thickness=2)
+                        detected_boxes_with_labels.append(((x1, y1, x2, y2), label))
+                    else:
+                        cv.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness=2)
+                        detected_boxes_with_labels.append(((x1, y1, x2, y2), None))
+
     # --- Car tracking for idle detection ---
     tracks = car_tracker.update(vehicle_boxes)
     idle_ids = set(car_tracker.get_idle())
@@ -231,27 +248,14 @@ while True:
     cv.putText(frame, 'Forward', (legend_x, legend_y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0, 70), 2)
     cv.putText(frame, 'Backward', (legend_x + 100, legend_y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255, 70), 2)
 
-    # Draw boxes and direction
+    # Draw 'idle' label for tracked cars
     for track_id, track in tracks.items():
         x1, y1, x2, y2 = track['bbox']
-        crop = frame[max(y1,0):max(y2,0), max(x1,0):max(x2,0)]
-        if crop.size != 0:
-            crop_pil = Image.fromarray(cv.cvtColor(crop, cv.COLOR_BGR2RGB))
-            input_tensor = transform(crop_pil).unsqueeze(0).to(dev)
-            with torch.no_grad():
-                output = direction_model(input_tensor)
-                _, predicted = torch.max(output, 1)
-                label = class_names[predicted.item()]
-            color = (0, 255, 0) if label == 'forward' else (0, 0, 255)
-            cv.rectangle(frame, (x1, y1), (x2, y2), color, thickness=2)
-            # Draw 'idle' if car is idle
-            if track_id in idle_ids:
-                cv.putText(frame, 'idle', (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-        else:
-            cv.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), thickness=2)
+        if track_id in idle_ids:
+            cv.putText(frame, 'idle', (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
     cv.imshow("vid", frame)
-    # out.write(frame)
+    out.write(frame)
 
     # Break if 'd' is pressed or window is closed
     if cv.waitKey(10) & 0xFF == ord("d"):
@@ -261,5 +265,5 @@ while True:
         break
 
 vid.release()
-# out.release()
+out.release()
 cv.destroyAllWindows()
