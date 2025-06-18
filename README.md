@@ -41,17 +41,17 @@ pip install ultralytics
 
 #### 3. DeTR:
 
-| Metric | IoU | Area | MaxDets | ResNet-50 | ResNet-101 |
-|--------|-----------------|----------|--------------|-------|-------|
-| **AP** | @[IoU=0.50:0.95 | area=all | maxDets=100 | 0.613 | 0.627 |
-| **AP** | @[IoU=0.50      | area=all | maxDets=100 | 0.915 | 0.945 |
-| **AP** | @[IoU=0.75      | area=all | maxDets=100 | 0.727 | 0.758 |
-| **AP** | @[IoU=0.50:0.95 | area=small | maxDets=100 | 0.379 | 0.382 |
-| **AP** | @[IoU=0.50:0.95 | area=medium | maxDets=100 | 0.640 | 0.658 |
-| **AP** | @[IoU=0.50:0.95 | area=large | maxDets=100 | 0.806 | 0.821 |
-| **AR** | @[IoU=0.50:0.95 | area=all | maxDets=1 | 0.472 | 0.481 |
-| **AR** | @[IoU=0.50:0.95 | area=all | maxDets=10 | 0.712 | 0.729 |
-| **AR** | @[IoU=0.50:0.95 | area=small | maxDets=100 | 0.567 | 0.582 |
-| **AR** | @[IoU=0.50:0.95 | area=medium | maxDets=100 | 0.735 | 0.754 |
-| **AR** | @[IoU=0.50:0.95 | area=large | maxDets=100 | 0.858 | 0.860 |
+| Metric | IoU/ Area/ MaxDets | ResNet-50 | ResNet-101 |
+|--------|------------------------------------------|-------|-------|
+| **AP** | @[IoU=0.50:0.95 / area=all / maxDets=100] | 0.613 | 0.627 |
+| **AP** | @[IoU=0.50      / area=all / maxDets=100] | 0.915 | 0.945 |
+| **AP** | @[IoU=0.75      / area=all / maxDets=100] | 0.727 | 0.758 |
+| **AP** | @[IoU=0.50:0.95 / area=small / maxDets=100] | 0.379 | 0.382 |
+| **AP** | @[IoU=0.50:0.95 / area=medium / maxDets=100] | 0.640 | 0.658 |
+| **AP** | @[IoU=0.50:0.95 / area=large / maxDets=100] | 0.806 | 0.821 |
+| **AR** | @[IoU=0.50:0.95 / area=all / maxDets=1] | 0.472 | 0.481 |
+| **AR** | @[IoU=0.50:0.95 / area=all / maxDets=10] | 0.712 | 0.729 |
+| **AR** | @[IoU=0.50:0.95 / area=small / maxDets=100] | 0.567 | 0.582 |
+| **AR** | @[IoU=0.50:0.95 / area=medium / maxDets=100] | 0.735 | 0.754 |
+| **AR** | @[IoU=0.50:0.95 / area=large / maxDets=100] | 0.858 | 0.860 |
 
