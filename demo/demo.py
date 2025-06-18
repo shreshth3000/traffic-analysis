@@ -106,7 +106,7 @@ class CarTracker:
 
 car_tracker = CarTracker(idle_frames=20)
 
-vid = cv.VideoCapture("demo/traffic.mp4")
+vid = cv.VideoCapture("demo/traffic_last5.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
 vid.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
 vid.set(cv.CAP_PROP_FPS, 60)
@@ -119,8 +119,8 @@ frame_w, frame_h = 1220, 700
 desired_obj = [0, 3]
 
 # VideoWriter to save output
-fourcc = cv.VideoWriter_fourcc(*'mp4v')
-out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h))
+# fourcc = cv.VideoWriter_fourcc(*'mp4v')
+# out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h))
 
 # # Read the first frame for lane detection
 # istrue, first_frame = vid.read()
@@ -134,6 +134,47 @@ out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h))
 
 # Reset video to the beginning
 vid.set(cv.CAP_PROP_POS_FRAMES, 0)
+
+class LaneTracker:
+    def __init__(self, confidence_threshold=0.5, iou_threshold=0.7):
+        self.previous_masks = None
+        self.confidence_threshold = confidence_threshold
+        self.iou_threshold = iou_threshold
+        
+    def calculate_iou(self, mask1, mask2):
+        intersection = np.logical_and(mask1, mask2).sum()
+        union = np.logical_or(mask1, mask2).sum()
+        return intersection / union if union > 0 else 0
+        
+    def update(self, new_masks, confidence_scores):
+        if self.previous_masks is None:
+            self.previous_masks = new_masks
+            return new_masks
+            
+        updated_masks = []
+        for i, (new_mask, conf_score) in enumerate(zip(new_masks, confidence_scores)):
+            if i < len(self.previous_masks):
+                prev_mask = self.previous_masks[i]
+                iou = self.calculate_iou(new_mask, prev_mask)
+                
+                # Update mask if confidence is high enough or IoU is good
+                if conf_score > self.confidence_threshold or iou > self.iou_threshold:
+                    updated_masks.append(new_mask)
+                else:
+                    updated_masks.append(prev_mask)
+            else:
+                # New lane detected
+                if conf_score > self.confidence_threshold:
+                    updated_masks.append(new_mask)
+                else:
+                    # Skip low confidence new lanes
+                    continue
+                    
+        self.previous_masks = updated_masks
+        return updated_masks
+
+# Initialize lane tracker
+lane_tracker = LaneTracker(confidence_threshold=0.5, iou_threshold=0.7)
 
 while True:
     istrue, frame = vid.read()
@@ -184,22 +225,24 @@ while True:
     idle_ids = set(car_tracker.get_idle())
 
     lane_masks = []
+    confidence_scores = []
     total_lane_mask = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.uint8)
 
     for result in lane_results:
         if result.masks is not None:
-            for mask in result.masks.data:
+            for mask, conf in zip(result.masks.data, result.boxes.conf):
                 mask_np = mask.cpu().numpy().astype('uint8')
                 mask_resized = cv.resize(mask_np, (frame.shape[1], frame.shape[0]))
                 lane_masks.append(mask_resized)
-                total_lane_mask |= mask_resized  
+                confidence_scores.append(conf.item())
 
-                # Visualize mask on frame
-                colored_mask = np.zeros_like(frame, dtype=np.uint8)
-                colored_mask[mask_resized == 1] = (0, 255, 0)
-                frame = np.where(colored_mask > 0,
-                                cv.addWeighted(frame, 0.5, colored_mask, 0.5, 0),
-                                frame)
+    # Update lane masks with confidence thresholding
+    lane_masks = lane_tracker.update(lane_masks, confidence_scores)
+    
+    # Update total lane mask
+    total_lane_mask = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.uint8)
+    for mask in lane_masks:
+        total_lane_mask |= mask
 
     num_lanes = len(lane_masks)
     assumed_lane_area = total_lane_mask.sum() / num_lanes if num_lanes > 0 else 1
@@ -255,7 +298,7 @@ while True:
             cv.putText(frame, 'idle', (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
     cv.imshow("vid", frame)
-    out.write(frame)
+    # out.write(frame)
 
     # Break if 'd' is pressed or window is closed
     if cv.waitKey(10) & 0xFF == ord("d"):
@@ -265,5 +308,5 @@ while True:
         break
 
 vid.release()
-out.release()
+# out.release()
 cv.destroyAllWindows()
