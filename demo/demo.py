@@ -248,7 +248,7 @@ while True:
             if track_id in idle_ids:
                 cv.putText(frame, 'idle', (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
         else:
-            cv.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness=2)
+            cv.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), thickness=2)
 
     cv.imshow("vid", frame)
     # out.write(frame)
