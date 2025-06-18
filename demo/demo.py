@@ -106,7 +106,7 @@ class CarTracker:
 
 car_tracker = CarTracker(idle_frames=20)
 
-vid = cv.VideoCapture("demo/traffic.mp4")
+vid = cv.VideoCapture("demo/traffic_last5.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
 vid.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
 vid.set(cv.CAP_PROP_FPS, 60)
@@ -119,18 +119,18 @@ frame_w, frame_h = 1220, 700
 desired_obj = [0, 3]
 
 # VideoWriter to save output
-fourcc = cv.VideoWriter_fourcc(*'mp4v')
-out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h))
+# fourcc = cv.VideoWriter_fourcc(*'mp4v')
+# out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h))
 
 # # Read the first frame for lane detection
-# istrue, first_frame = vid.read()
-# if not istrue:
-#     print("Error: Could not read the first frame.")
-#     exit()
-# first_frame = cv.resize(first_frame, (frame_w, frame_h))
-# resize_first_frame = cv.resize(first_frame, (640, 640))
-# rgb_first_frame = cv.cvtColor(resize_first_frame, cv.COLOR_BGR2RGB)
-# lane_results = lane_model(rgb_first_frame, device=dev)
+istrue, first_frame = vid.read()
+if not istrue:
+    print("Error: Could not read the first frame.")
+    exit()
+first_frame = cv.resize(first_frame, (frame_w, frame_h))
+resize_first_frame = cv.resize(first_frame, (640, 640))
+rgb_first_frame = cv.cvtColor(resize_first_frame, cv.COLOR_BGR2RGB)
+lane_results = lane_model(rgb_first_frame, device=dev)
 
 # Reset video to the beginning
 vid.set(cv.CAP_PROP_POS_FRAMES, 0)
@@ -145,7 +145,7 @@ while True:
     rgb_frame = cv.cvtColor(resize_frame, cv.COLOR_BGR2RGB)
 
     car_results = car_model(rgb_frame, device=dev)
-    lane_results = lane_model(rgb_frame, device=dev)
+    # lane_results = lane_model(rgb_frame, device=dev)
 
     scale_x = frame.shape[1] / 640
     scale_y = frame.shape[0] / 640
@@ -255,7 +255,7 @@ while True:
             cv.putText(frame, 'idle', (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
     cv.imshow("vid", frame)
-    out.write(frame)
+    # out.write(frame)
 
     # Break if 'd' is pressed or window is closed
     if cv.waitKey(10) & 0xFF == ord("d"):
@@ -265,5 +265,5 @@ while True:
         break
 
 vid.release()
-out.release()
+# out.release()
 cv.destroyAllWindows()
