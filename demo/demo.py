@@ -6,6 +6,8 @@ from ultralytics import YOLO
 import torch.nn as nn
 from torchvision import transforms, models
 from PIL import Image
+from collections import defaultdict, deque
+import math
 
 car_model = YOLO('models/yolo8nbest.pt')
 lane_model = YOLO('models/lane_seg_weights.pt')
@@ -29,9 +31,82 @@ transform = transforms.Compose([
 ])
 class_names = ['backward', 'forward']
 
+# --- Car Tracker for Idle Detection ---
+class CarTracker:
+    def __init__(self, max_lost=30, idle_frames=20, dist_thresh=50):
+        self.next_id = 0
+        self.tracks = {}  # id: {'bbox': (x1, y1, x2, y2), 'centroid': (x, y), 'lost': 0, 'history': deque}
+        self.max_lost = max_lost
+        self.idle_frames = idle_frames
+        self.dist_thresh = dist_thresh
 
+    def _centroid(self, bbox):
+        x1, y1, x2, y2 = bbox
+        return ((x1 + x2) // 2, (y1 + y2) // 2)
 
-vid = cv.VideoCapture("demo/vid.mp4")
+    def update(self, detections):
+        updated_tracks = {}
+        used_detections = set()
+        # Match detections to existing tracks
+        for track_id, track in self.tracks.items():
+            min_dist = float('inf')
+            min_idx = -1
+            for i, det in enumerate(detections):
+                if i in used_detections:
+                    continue
+                c1 = self._centroid(track['bbox'])
+                c2 = self._centroid(det)
+                dist = math.hypot(c1[0] - c2[0], c1[1] - c2[1])
+                if dist < min_dist:
+                    min_dist = dist
+                    min_idx = i
+            if min_dist < self.dist_thresh:
+                # Update track
+                bbox = detections[min_idx]
+                centroid = self._centroid(bbox)
+                history = track['history']
+                history.append(centroid)
+                if len(history) > self.idle_frames:
+                    history.popleft()
+                updated_tracks[track_id] = {
+                    'bbox': bbox,
+                    'centroid': centroid,
+                    'lost': 0,
+                    'history': history
+                }
+                used_detections.add(min_idx)
+            else:
+                # Track lost
+                track['lost'] += 1
+                if track['lost'] < self.max_lost:
+                    updated_tracks[track_id] = track
+        # Add new tracks for unmatched detections
+        for i, det in enumerate(detections):
+            if i not in used_detections:
+                centroid = self._centroid(det)
+                updated_tracks[self.next_id] = {
+                    'bbox': det,
+                    'centroid': centroid,
+                    'lost': 0,
+                    'history': deque([centroid], maxlen=self.idle_frames)
+                }
+                self.next_id += 1
+        self.tracks = updated_tracks
+        return self.tracks
+
+    def get_idle(self):
+        idle_ids = []
+        for track_id, track in self.tracks.items():
+            if len(track['history']) == self.idle_frames:
+                # If all centroids in history are close, mark as idle
+                c0 = track['history'][0]
+                if all(math.hypot(c0[0]-c[0], c0[1]-c[1]) < 5 for c in track['history']):
+                    idle_ids.append(track_id)
+        return idle_ids
+
+car_tracker = CarTracker(idle_frames=20)
+
+vid = cv.VideoCapture("demo/traffic.mp4")
 vid.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
 vid.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
 vid.set(cv.CAP_PROP_FPS, 60)
@@ -76,6 +151,7 @@ while True:
     scale_y = frame.shape[0] / 640
 
     vehicle_boxes = []
+    detected_boxes_with_labels = []
 
     if car_results:
         for result in car_results:
@@ -87,7 +163,7 @@ while True:
                     x2 = int(x2 * scale_x)
                     y2 = int(y2 * scale_y)
                     vehicle_boxes.append((x1, y1, x2, y2))
-                    # --- Direction classification integration ---
+                    # --- Direction classification integration (restored) ---
                     crop = frame[max(y1,0):max(y2,0), max(x1,0):max(x2,0)]
                     if crop.size != 0:
                         crop_pil = Image.fromarray(cv.cvtColor(crop, cv.COLOR_BGR2RGB))
@@ -98,8 +174,14 @@ while True:
                             label = class_names[predicted.item()]
                         color = (0, 255, 0) if label == 'forward' else (0, 0, 255)
                         cv.rectangle(frame, (x1, y1), (x2, y2), color, thickness=2)
+                        detected_boxes_with_labels.append(((x1, y1, x2, y2), label))
                     else:
                         cv.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness=2)
+                        detected_boxes_with_labels.append(((x1, y1, x2, y2), None))
+
+    # --- Car tracking for idle detection ---
+    tracks = car_tracker.update(vehicle_boxes)
+    idle_ids = set(car_tracker.get_idle())
 
     lane_masks = []
     total_lane_mask = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.uint8)
@@ -166,7 +248,12 @@ while True:
     cv.putText(frame, 'Forward', (legend_x, legend_y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0, 70), 2)
     cv.putText(frame, 'Backward', (legend_x + 100, legend_y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255, 70), 2)
 
-    
+    # Draw 'idle' label for tracked cars
+    for track_id, track in tracks.items():
+        x1, y1, x2, y2 = track['bbox']
+        if track_id in idle_ids:
+            cv.putText(frame, 'idle', (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+
     cv.imshow("vid", frame)
     out.write(frame)
 
