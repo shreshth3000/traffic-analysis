@@ -335,7 +335,7 @@ while True:
             cv.putText(frame, 'idle', (x1, y1-10), cv.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
     cv.imshow("vid", frame)
-    out.write(frame)
+    #out.write(frame) #Uncomment if you want to save output
 
     if cv.waitKey(10) & 0xFF == ord("d"):
         break
@@ -343,5 +343,5 @@ while True:
         break
 
 vid.release()
-out.release()
+#out.release() # Uncomment if you want to save output
 cv.destroyAllWindows()
