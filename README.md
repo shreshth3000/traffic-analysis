@@ -40,7 +40,12 @@ pip install ultralytics
 - Recall: 0.90
 
 #### 3. DeTR:
+##### Dependencies:
+```
+pip install torch torchvision pytorch-lightning>=2.0.0 transformers>=4.35.0 pycocotools>=2.0.6 tqdm pandas opencv-python Pillow
+```
 
+##### Results:
 | Metric | IoU/ Area/ MaxDets | ResNet-50 | ResNet-101 |
 |--------|------------------------------------------|-------|-------|
 | **AP** | @[IoU=0.50:0.95 / area=all / maxDets=100] | 0.613 | 0.627 |
@@ -54,4 +59,5 @@ pip install ultralytics
 | **AR** | @[IoU=0.50:0.95 / area=small / maxDets=100] | 0.567 | 0.582 |
 | **AR** | @[IoU=0.50:0.95 / area=medium / maxDets=100] | 0.735 | 0.754 |
 | **AR** | @[IoU=0.50:0.95 / area=large / maxDets=100] | 0.858 | 0.860 |
+
 
