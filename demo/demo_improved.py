@@ -115,8 +115,8 @@ if not vid.isOpened():
 frame_w, frame_h = 1220, 700
 desired_obj = [0, 3]
 # VideoWriter to save output
-fourcc = cv.VideoWriter_fourcc(*'mp4v')
-out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h))
+#fourcc = cv.VideoWriter_fourcc(*'mp4v')                                 #Uncomment if you 
+#out = cv.VideoWriter('demo/output.mp4', fourcc, 30, (frame_w, frame_h)) #want to save output
 
 # # Read the first frame for lane detection
 # istrue, first_frame = vid.read()
