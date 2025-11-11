@@ -8,7 +8,7 @@ Run file [demo_improved.py](https://github.com/shreshth3000/traffic-analysis/blo
 **Sample Output:**
 
 ![Sample Output](sample_output.jpg)
-1. Cars with green bounding boxes are moving forwards (away the camera) and cars with red boundinf boxes are moving backwards(towards from the camera)
+1. Cars with green bounding boxes are moving forwards (away the camera) and cars with red bounding boxes are moving backwards(towards from the camera)
 2. The lane colours signify the traffic in that particular lane.
 
 ## Below are the different approaches with instructions to run and results for object detection.
